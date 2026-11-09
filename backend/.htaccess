@@ -1,0 +1,2 @@
+# Handled by apache.conf in Docker
+# For InfinityFree shared hosting, direct PHP access is blocked at nginx level
