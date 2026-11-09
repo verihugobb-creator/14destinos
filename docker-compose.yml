@@ -1,0 +1,51 @@
+# Backend en local: PHP + Apache, MySQL y phpMyAdmin
+# Arrancar:  docker compose up -d --build
+# Parar:     docker compose down
+services:
+
+  # ── Servidor web (PHP + Apache) ─────────────────────────────────────────
+  web:
+    build: .
+    ports:
+      - "8080:80"                  # http://localhost:8080
+    volumes:
+      - ./:/var/www/html           # tu carpeta del proyecto = la web del contenedor
+    environment:                   # bootstrap.php lee estas variables con getenv()
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: destinos
+      DB_USER: destinos
+      DB_PASS: destinos
+    depends_on:
+      - db
+
+  # ── Base de datos MySQL ─────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: destinos
+      MYSQL_USER: destinos
+      MYSQL_PASSWORD: destinos
+    volumes:
+      # Los .sql de /docker-entrypoint-initdb.d se ejecutan SOLO la primera vez (en orden)
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/places.sql:/docker-entrypoint-initdb.d/02-places.sql
+      - db_data:/var/lib/mysql     # aquí se guardan los datos aunque pares Docker
+    ports:
+      - "3307:3306"                # por si quieres entrar desde Workbench
+
+  # ── phpMyAdmin (para ver las tablas) ────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:5
+    ports:
+      - "8081:80"                  # http://localhost:8081
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - db
+
+volumes:
+  db_data:

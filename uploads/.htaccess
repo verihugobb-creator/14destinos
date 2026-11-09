@@ -1,0 +1,6 @@
+# Prevent execution of any scripts in this directory
+Options -ExecCGI -Indexes
+AddType text/plain .php .php3 .php4 .php5 .phtml .phar
+<FilesMatch "\.(php|php3|php4|php5|phtml|phar|pl|py|cgi|sh)$">
+    Deny from all
+</FilesMatch>
